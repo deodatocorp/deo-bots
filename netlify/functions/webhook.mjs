@@ -1,4 +1,4 @@
-// Webhook único (v5) — a Meta chama esta URL para WhatsApp, Messenger e Instagram.
+// Webhook único (v6) — a Meta chama esta URL para WhatsApp, Messenger e Instagram.
 // URL final: https://SEU-SITE.netlify.app/webhook
 
 import deoRepair from "../../src/negocios/deo-repair.mjs";
@@ -25,9 +25,10 @@ export default async (req) => {
 
   // 1) Verificação inicial (a Meta faz um GET quando você cadastra o webhook)
   if (req.method === "GET") {
-    const ok =
-      url.searchParams.get("hub.mode") === "subscribe" &&
-      url.searchParams.get("hub.verify_token") === env("WHATSAPP_VERIFY_TOKEN");
+    const recebido = (url.searchParams.get("hub.verify_token") || "").trim();
+    const esperado = (env("WHATSAPP_VERIFY_TOKEN") || "").trim();
+    const ok = url.searchParams.get("hub.mode") === "subscribe" && esperado !== "" && recebido === esperado;
+    console.log("[verificacao]", { modo: url.searchParams.get("hub.mode"), recebido: recebido.length, esperado: esperado.length, ok });
     return ok
       ? new Response(url.searchParams.get("hub.challenge"), { status: 200 })
       : new Response("Token de verificação inválido", { status: 403 });
