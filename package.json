@@ -1,0 +1,13 @@
+{
+  "name": "deo-bots",
+  "version": "1.0.0",
+  "description": "Bots de WhatsApp da Deo Repair e da Deo Dev (WhatsApp Cloud API + Netlify Functions)",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "teste": "node test/simular.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

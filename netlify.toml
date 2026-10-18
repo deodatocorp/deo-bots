@@ -1,0 +1,6 @@
+[build]
+  publish = "public"
+  command = "echo 'Bots Deo v2 - sem build'"
+
+[functions]
+  node_bundler = "esbuild"
