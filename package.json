@@ -5,7 +5,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "teste": "node test/simular.mjs"
+    "teste": "node test/simular.mjs",
+    "painel": "node scripts/gerar-painel.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "^8.1.0"

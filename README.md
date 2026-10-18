@@ -1,4 +1,4 @@
-# 🤖 Bots Deo Repair & Deo Dev — WhatsApp, Instagram e Messenger · **v5**
+# 🤖 Bots Deo Repair & Deo Dev — WhatsApp, Instagram e Messenger · **v8**
 
 Um único projeto no Netlify atende **os dois negócios em três canais**: WhatsApp, Instagram e Messenger. O bot descobre qual negócio e qual canal é pela mensagem que chega e responde com a configuração certa.
 
@@ -36,7 +36,15 @@ Se você não responder, o bot volta a atender sozinho depois de **12 horas** (`
 > ⚠️ **Regra das 24h:** o WhatsApp só deixa a empresa mandar mensagem livre para quem falou com ela nas últimas 24h. Isso vale para os avisos que *você* recebe: mande qualquer coisa (ex.: `/leads`) para cada bot **uma vez por dia**. Mesmo se esquecer, nada se perde — tudo fica no **painel**.
 
 ### Painel de pedidos
-`https://SEU-SITE.netlify.app/painel?token=SEU_ADMIN_TOKEN` — lista os pedidos dos dois negócios, com filtro, link para o WhatsApp do cliente e as fotos/vídeos que ele mandou.
+`https://SEU-SITE.netlify.app/painel?token=SEU_ADMIN_TOKEN` — central dos bots com a identidade da Deodato Corp. Escolha **Todas**, **Deo Repair** ou **Deo Dev** no topo e o painel muda logo, cores e dados para aquela empresa (tema claro/escuro incluso). Depois de abrir pelo link, o token sai da barra de endereço e fica só naquela aba.
+
+- **Visão geral:** quem está esperando resposta (e há quanto tempo), conversas da semana comparadas com a anterior, pedidos novos, valor em negociação e fechado no mês, gráfico de 14 dias, retornos combinados, origem dos pedidos, funil do mês e comparativo Repair × Dev.
+- **Conversas:** caixa de entrada com busca, filtros (aguardando / com você / com o bot), marcação de não lidas, aviso da janela de 24h, fotos dos clientes na conversa, respostas rápidas com um toque, botões Assumir/Devolver e **ficha do cliente** (pedidos dele + notas internas que só você vê).
+- **Pedidos:** quadro com etapas *Novo → Orçamento enviado → Aprovado → Concluído / Perdido* (arraste os cartões), valor de cada orçamento, data para retornar, anotações e **exportar planilha** (CSV que abre no Excel/Google Planilhas).
+- **Respostas rápidas:** mensagens prontas por empresa, editáveis no painel. Use `{nome}` e `{empresa}`.
+- **Som** opcional quando chega mensagem e contador na aba do navegador.
+
+> A tela do painel fica em `src/painel-ui.html`. Depois de editar, rode `npm run painel` para gerar `src/painel-ui.mjs`.
 
 ---
 
@@ -190,7 +198,8 @@ node test/simular.mjs -v   # mostra cada mensagem que o bot enviaria
 ## Estrutura
 ```
 netlify/functions/webhook.mjs   ← recebe as mensagens da Meta
-netlify/functions/painel.mjs    ← painel de pedidos (/painel)
+netlify/functions/painel.mjs    ← painel (/painel) e suas rotas /painel/api/*
+src/painel-ui.html              ← a tela do painel (edite aqui e rode npm run painel)
 src/bot.mjs                     ← lógica: menu, pré-orçamento, IA, atendente, comandos do dono
 src/negocios/*.mjs              ← textos e perguntas de cada negócio
 src/social.mjs                  ← Instagram e Messenger: direct, comentários, botões
@@ -207,6 +216,9 @@ test/                           ← simulador local
 
 ---
 ## Histórico de versões
+- **v8**: painel redesenhado com a identidade da Deodato Corp e tema por empresa (logo, cores, claro/escuro); visão geral com indicadores e gráfico; quadro de pedidos com etapas, valor, retorno e exportação; respostas rápidas editáveis; ficha do cliente com notas internas; busca, filtros, não lidas, aviso da janela de 24h e som.
+- **v7**: caixa de entrada no painel (`/painel`): conversas dos dois negócios, histórico, resposta pelo número da empresa, botões Assumir/Devolver ao bot; suporte à coexistência (respostas suas pelo app WhatsApp Business pausam o bot e entram no histórico).
+- **v6**: verificação do webhook tolerante a espaços + log; rota `/configurar?token=ADMIN_TOKEN&waba=ID` que cadastra o webhook e inscreve a conta do WhatsApp pela API da Meta.
 - **v5**: Graph API atualizada para v25.0 (versão atual da Meta).
 - **v4**: WhatsApp, site e Instagram reais da Deo Repair e da Deo Dev inseridos nas configurações (os botões funcionam sem variáveis extras); a IA também conhece esses contatos.
 - **v3**: Instagram e Messenger (direct e comentários) levando primeiro ao WhatsApp e depois ao site; pausa automática quando você responde pela caixa de entrada; origem do lead no aviso e no painel; webhook único para os três canais.
@@ -214,4 +226,4 @@ test/                           ← simulador local
 - **v1**: primeira versão dos bots (menu, pré-orçamento, IA, atendimento humano com comandos do dono e painel de pedidos).
 
 ---
-*Bots Deo — v5*
+*Bots Deo — v8*
