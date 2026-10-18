@@ -5,6 +5,7 @@ import deoRepair from "../src/negocios/deo-repair.mjs";
 import deoDev from "../src/negocios/deo-dev.mjs";
 import { processarMensagem, mesmoNumero } from "../src/bot.mjs";
 import { criarArmazenamentoMemoria } from "./armazenamento-memoria.mjs";
+import { processarMensagemSocial, processarComentario, linksDoNegocio } from "../src/social.mjs";
 
 const DONO = "5521988887777";
 const CLIENTE = "5521911112222";
@@ -170,6 +171,106 @@ await caso("limites do WhatsApp respeitados nas configs", () => {
       if (p.tipo === "lista") { assert.ok(p.opcoes.length <= 10); p.opcoes.forEach((o) => assert.ok(o.length <= 24, o)); }
     }
   }
+});
+
+// ======================= Instagram / Messenger (v3) =======================
+function montarSocial(negocio, { comIA = true } = {}) {
+  const store = criarArmazenamentoMemoria();
+  const saida = [];
+  let mid = 0;
+  const reg = (tipo) => async (...args) => (saida.push({ tipo, args }), `m.bot.${++mid}`);
+  const envio = { texto: reg("texto"), cartao: reg("cartao"), respostaPrivada: reg("privada"), responderComentario: reg("publica") };
+  const ia = comIA ? async (_n, hist, op) => `[IA ${op?.canal}] ${hist.at(-1).content}` : null;
+  const links = { whats: "https://wa.me/5521900000000?text=oi", site: "https://deorepair.netlify.app" };
+  let relogio = Date.parse("2026-10-18T12:00:00Z");
+  let n = 0;
+  const deps = () => ({ store, envio, ia, links, agora: relogio });
+  const dm = async (texto, plataforma = "instagram", de = "IGSID1") => {
+    const antes = saida.length;
+    await processarMensagemSocial({ negocio, plataforma, evento: { sender: { id: de }, recipient: { id: "PAGE" }, message: { mid: `m.in.${++n}`, text: texto } } }, deps());
+    return saida.slice(antes);
+  };
+  const eco = async (midEco, para = "IGSID1") =>
+    processarMensagemSocial({ negocio, plataforma: "instagram", evento: { sender: { id: "PAGE" }, recipient: { id: para }, message: { mid: midEco, is_echo: true, text: "x" } } }, deps());
+  const comenta = async (texto, plataforma = "instagram", deId = "U1", id = `c${++n}`) => {
+    const antes = saida.length;
+    await processarComentario({ negocio, plataforma, comentario: { id, texto, deId, contaId: "CONTA" } }, deps());
+    return saida.slice(antes);
+  };
+  return { dm, eco, comenta, saida, avancar: (min) => (relogio += min * 60e3) };
+}
+
+await caso("Instagram: 'oi' → saudação + cartão com WhatsApp primeiro e site depois", async () => {
+  const { dm } = montarSocial(deoRepair);
+  const r = await dm("Oi!");
+  assert.equal(r[0].tipo, "texto");
+  assert.match(r[0].args[1], /Deo Repair/);
+  assert.doesNotMatch(r[0].args[1], /\*/); // sem negrito de WhatsApp
+  const botoes = r[1].args[1].botoes;
+  assert.equal(botoes[0].titulo, "Orçamento no WhatsApp");
+  assert.match(botoes[0].url, /wa\.me/);
+  assert.equal(botoes[1].titulo, "Ver o site");
+});
+
+await caso("Messenger: pergunta livre → IA social; cartão não repete em 30 min", async () => {
+  const { dm, avancar } = montarSocial(deoDev);
+  await dm("boa noite", "facebook", "PSID9");
+  let r = await dm("vocês fazem cardápio digital?", "facebook", "PSID9");
+  assert.equal(r.length, 1);
+  assert.match(r[0].args[1], /\[IA social\]/);
+  avancar(31);
+  r = await dm("e quanto tempo leva pra ficar pronto?", "facebook", "PSID9");
+  assert.equal(r.at(-1).tipo, "cartao");
+});
+
+await caso("Você respondeu pela caixa de entrada → bot pausa; mensagens do próprio bot não pausam", async () => {
+  const { dm, eco } = montarSocial(deoRepair);
+  await dm("oi");
+  await eco("m.bot.1"); // eco de mensagem enviada pelo bot
+  let r = await dm("meu ps4 não liga");
+  assert.ok(r.length > 0, "bot deveria continuar respondendo");
+  await eco("m.humano.1"); // você digitou na caixa de entrada
+  r = await dm("e aí?");
+  assert.equal(r.length, 0, "bot deveria ficar em silêncio");
+});
+
+await caso("Comentário com 'quanto custa' → DM privada com links + resposta pública", async () => {
+  const { comenta } = montarSocial(deoRepair);
+  let r = await comenta("Quanto custa trocar a tela do A54?");
+  assert.equal(r[0].tipo, "privada");
+  assert.match(r[0].args[1], /wa\.me/);
+  assert.match(r[0].args[1], /netlify\.app/);
+  assert.equal(r[1].args[2], "Te chamei no direct! 📩");
+  r = await comenta("Que lindo esse trabalho 😍");
+  assert.equal(r.length, 0, "comentário sem palavra-chave não recebe DM");
+  r = await comenta("quero orçamento", "instagram", "CONTA");
+  assert.equal(r.length, 0, "não responde a si mesmo");
+  r = await comenta("quero", "facebook");
+  assert.match(r[1].args[2], /Messenger/);
+});
+
+await caso("links reais saem da configuração sem variáveis", () => {
+  const r = linksDoNegocio(deoRepair, "facebook", {});
+  assert.equal(r.whats.split("?")[0], "https://wa.me/5521992291220");
+  assert.match(decodeURIComponent(r.whats), /Vim pelo Facebook/);
+  assert.equal(r.site, "https://deorepair.netlify.app/");
+  const d = linksDoNegocio(deoDev, "instagram", {});
+  assert.equal(d.whats.split("?")[0], "https://wa.me/5521966986094");
+  assert.equal(d.site, "https://deo-dev.netlify.app/");
+});
+
+await caso("link do WhatsApp leva a mensagem pronta e o bot do WhatsApp começa o orçamento com origem", async () => {
+  const l = linksDoNegocio(deoDev, "instagram", { DEV_WHATSAPP_NUMERO: "+55 (21) 98888-0000", DEV_SITE_URL: "https://deodev.netlify.app" });
+  assert.equal(l.whats.split("?")[0], "https://wa.me/5521988880000");
+  const texto = decodeURIComponent(l.whats.split("text=")[1]);
+  assert.match(texto, /Vim pelo Instagram/);
+  const { envia, store } = montar(deoDev);
+  let r = await envia(CLIENTE, texto);
+  assert.match(r.at(-1).args[0], /nome/); // já começou o pré-orçamento
+  for (const t of ["Ana", "Barbearia do Zé", "barbearia", "Landing page", "Plano 1 (R$ 199,99)", "não"]) await envia(CLIENTE, t);
+  r = await envia(CLIENTE, "sim");
+  assert.ok(r.some((s) => s.para === DONO && /Veio pelo: Instagram/.test(s.args[0])));
+  assert.equal((await store.listarLeads())[0].origem, "instagram");
 });
 
 console.log(`\n${ok} cenários passaram. 🎉`);

@@ -11,6 +11,8 @@ export function criarArmazenamentoMemoria() {
     salvarConversa: async (k, d) => void conversas.set(k, structuredClone(d)),
     salvarLead: async (l) => void leads.push(l),
     listarLeads: async () => [...leads].reverse(),
+    marcar: async (k) => void processadas.add(k),
+    tem: async (k) => processadas.has(k),
     jaProcessada: async (id) => (processadas.has(id) ? true : (processadas.add(id), false)),
     _leads: leads,
   };
