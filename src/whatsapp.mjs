@@ -1,7 +1,7 @@
 // Envio de mensagens pela WhatsApp Cloud API (Meta)
 // Docs: https://developers.facebook.com/docs/whatsapp/cloud-api/messages
 
-const GRAPH = () => `https://graph.facebook.com/${process.env.GRAPH_VERSION || "v23.0"}`;
+const GRAPH = () => `https://graph.facebook.com/${process.env.GRAPH_VERSION || "v25.0"}`;
 
 const corta = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
 

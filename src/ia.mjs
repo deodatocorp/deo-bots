@@ -14,7 +14,12 @@ REGRAS DE ATENDIMENTO:
 export function criarIA({ apiKey, modelo, fetchImpl = fetch }) {
   if (!apiKey) return null;
 
-  return async function responder(negocio, historico) {
+  return async function responder(negocio, historico, opcoes = {}) {
+    const regras =
+      opcoes.canal === "social"
+        ? REGRAS.replace(/- Se o cliente quiser orçamento[^\n]*\n- Se o cliente quiser falar[^\n]*/,
+            "- Esta conversa é no Instagram/Messenger. Se o cliente quiser orçamento ou falar com o Nathan, diga que é pelo WhatsApp, no botão que vem logo abaixo.\n- NÃO use asteriscos para negrito (aqui não funciona).")
+        : REGRAS;
     const res = await fetchImpl("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -25,7 +30,7 @@ export function criarIA({ apiKey, modelo, fetchImpl = fetch }) {
       body: JSON.stringify({
         model: modelo || "claude-haiku-5-5",
         max_tokens: 400,
-        system: `${negocio.conhecimentoIA}\n\n${REGRAS}`,
+        system: `${negocio.conhecimentoIA}\n\n${regras}`,
         messages: historico,
       }),
     });

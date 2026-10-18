@@ -26,6 +26,9 @@ export function criarArmazenamento() {
       return todos.filter(Boolean).sort((a, b) => b.criadoEm.localeCompare(a.criadoEm));
     },
 
+    marcar: (k) => processadas.set(k, "1"),
+    tem: async (k) => Boolean(await processadas.get(k)),
+
     // Evita responder duas vezes quando a Meta reenvia o mesmo webhook
     jaProcessada: async (id) => {
       if (await processadas.get(id)) return true;

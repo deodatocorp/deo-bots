@@ -1,9 +1,9 @@
 // =============================================================
-//  Cérebro do bot (v2) — mesmo código para Deo Repair e Deo Dev.
+//  Cérebro do bot (v5) — mesmo código para Deo Repair e Deo Dev.
 //  Recebe UMA mensagem e decide o que responder.
 // =============================================================
 
-const VERSAO = "v2";
+const VERSAO = "v5";
 const HORAS_ATENDENTE = Number(process.env.ATENDENTE_HORAS || 12);
 const MAX_HISTORICO = 10;
 
@@ -153,6 +153,9 @@ export async function processarMensagem({ negocio, msg, nomePerfil }, deps) {
     const conv = (await store.lerConversa(chave)) || novaConversa();
     const primeiraVez = conv.etapa === "novo";
     const n = normaliza(entrada.texto);
+    // De onde o cliente veio (mensagem pronta dos botões do Instagram/Messenger)
+    const origem = n.match(/vim pelo (instagram|facebook|messenger|site)/);
+    if (origem) conv.origem = origem[1] === "messenger" ? "facebook" : origem[1];
     const salvar = () => ((conv.atualizado = agora), (conv.nomePerfil = nomePerfil), store.salvarConversa(chave, conv));
     const quem = () => `${conv.respostas?.nome || nomePerfil || "Cliente"} (${tel})`;
 
@@ -343,6 +346,7 @@ export async function processarMensagem({ negocio, msg, nomePerfil }, deps) {
         negocioNome: negocio.nome,
         telefone: tel,
         nomePerfil,
+        origem: conv.origem || "whatsapp",
         respostas: conv.respostas,
         midias: conv.midias.map((m) => m.chave),
         criadoEm: new Date(agora).toISOString(),
@@ -356,7 +360,7 @@ export async function processarMensagem({ negocio, msg, nomePerfil }, deps) {
       await salvar();
 
       await avisarDono(
-        `🆕 *Novo pedido de orçamento — ${negocio.nome}* ${negocio.emoji}\n\n${resumoRespostas(negocio, lead.respostas)}\n📞 ${tel}` +
+        `🆕 *Novo pedido de orçamento — ${negocio.nome}* ${negocio.emoji}\n\n${resumoRespostas(negocio, lead.respostas)}\n📞 ${tel}\n📍 Veio pelo: ${{ whatsapp: "WhatsApp", instagram: "Instagram", facebook: "Facebook", site: "site" }[lead.origem]}` +
           (lead.midias.length ? `\n📎 ${lead.midias.length} arquivo(s) no painel` : "") +
           `\n\n↩️ Responder: */r ${tel} sua mensagem*`
       );
