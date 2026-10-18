@@ -1,9 +1,9 @@
 // =============================================================
-//  Cérebro do bot (v5) — mesmo código para Deo Repair e Deo Dev.
+//  Cérebro do bot (v7) — mesmo código para Deo Repair e Deo Dev.
 //  Recebe UMA mensagem e decide o que responder.
 // =============================================================
 
-const VERSAO = "v5";
+const VERSAO = "v7";
 const HORAS_ATENDENTE = Number(process.env.ATENDENTE_HORAS || 12);
 const MAX_HISTORICO = 10;
 
@@ -88,7 +88,7 @@ export async function processarMensagem({ negocio, msg, nomePerfil }, deps) {
       await store.salvarConversa(`${negocio.id}:${alvo}`, conv);
       estadoDono.ultimoCliente = alvo;
       await store.salvarConversa(chaveDono, estadoDono);
-      const ok = await wa.texto(alvo, texto);
+      const ok = await (wa.textoDono || wa.texto)(alvo, texto);
       return wa.texto(tel, ok ? `✅ Enviado para ${alvo}` : `❌ Não consegui enviar para ${alvo} (a janela de 24h do cliente pode ter fechado).`);
     }
 

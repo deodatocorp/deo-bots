@@ -8,8 +8,21 @@ export function criarArmazenamento() {
   const leads = getStore("leads");
   const processadas = getStore("mensagens-processadas");
   const midias = getStore("midias");
+  const historico = getStore("historico");
 
   return {
+    // Histórico das conversas (caixa de entrada do painel)
+    addHistorico: async (chave, item) => {
+      const atual = (await historico.get(chave, { type: "json" })) || [];
+      atual.push(item);
+      await historico.setJSON(chave, atual.slice(-300));
+    },
+    lerHistorico: async (chave) => (await historico.get(chave, { type: "json" })) || [],
+    listarHistoricos: async () => {
+      const { blobs } = await historico.list();
+      return blobs.map((b) => b.key);
+    },
+
     salvarMidia: (chave, dados, mime) => midias.set(chave, dados, { metadata: { mime } }),
     lerMidia: async (chave) => {
       const r = await midias.getWithMetadata(chave, { type: "arrayBuffer" });
