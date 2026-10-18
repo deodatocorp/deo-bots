@@ -1,6 +1,12 @@
-# 🤖 Bots WhatsApp — Deo Repair & Deo Dev · **v2**
+# 🤖 Bots Deo Repair & Deo Dev — WhatsApp, Instagram e Messenger · **v5**
 
-Um único projeto no Netlify atende **os dois números**. O bot descobre qual negócio é pela mensagem que chega e responde com a configuração certa.
+Um único projeto no Netlify atende **os dois negócios em três canais**: WhatsApp, Instagram e Messenger. O bot descobre qual negócio e qual canal é pela mensagem que chega e responde com a configuração certa.
+
+```
+Instagram / Messenger ──► saudação + botões [Orçamento no WhatsApp] [Ver o site]
+        │
+        └─► WhatsApp (mensagem pronta "Vim pelo Instagram…") ──► pré-orçamento ──► aviso no seu WhatsApp + painel
+```
 
 ## O que o bot faz
 
@@ -33,6 +39,45 @@ Se você não responder, o bot volta a atender sozinho depois de **12 horas** (`
 `https://SEU-SITE.netlify.app/painel?token=SEU_ADMIN_TOKEN` — lista os pedidos dos dois negócios, com filtro, link para o WhatsApp do cliente e as fotos/vídeos que ele mandou.
 
 ---
+
+## Instagram e Messenger (v3)
+
+**O que o bot faz:**
+- **Direct do Instagram / Messenger:** responde na hora com uma saudação e um cartão com dois botões, nesta ordem:
+  1. **Orçamento no WhatsApp:** abre o WhatsApp do negócio com a mensagem pronta *“Oi! Vim pelo Instagram e quero um orçamento 😊”*. O bot do WhatsApp já começa o pré-orçamento e registra a **origem** do lead.
+  2. **Ver o site:** abre a landing page.
+- **Perguntas livres** no direct são respondidas pela IA (sem negrito, que não funciona nesses apps), e o cartão é reenviado no máximo a cada 30 min.
+- **Comentários nos posts** com palavras como *orçamento, quero, preço, valor, quanto, info* recebem uma **DM automática** com os links, e o comentário é respondido em público com *“Te chamei no direct! 📩”*. A lista fica em `palavrasComentario`.
+- **Você assume quando quiser:** se responder alguém pela caixa de entrada do Instagram ou do Meta Business Suite, o bot **para de responder aquela pessoa por 12h**. No Instagram e no Messenger não há comandos `/r`: você responde direto pelo app normal.
+- No **painel**, cada pedido mostra de onde veio: 💬 WhatsApp, 📸 Instagram ou 📘 Facebook.
+
+**Contas já configuradas** (em `src/negocios/*.mjs` → `redes`):
+
+| | Deo Repair 🔧 | Deo Dev 💻 |
+|---|---|---|
+| WhatsApp | (21) 99229-1220 | (21) 96698-6094 |
+| Site | https://deorepair.netlify.app/ | https://deo-dev.netlify.app/ |
+| Instagram | [@deo_repair](https://www.instagram.com/deo_repair/) | [@deodev.corp](https://www.instagram.com/deodev.corp/) |
+| Facebook | [página](https://www.facebook.com/profile.php?id=61595494169589) | [página](https://www.facebook.com/profile.php?id=61595093687313) |
+
+> Se as Páginas do Facebook estiverem trocadas, inverta os dois `facebookPageId` nos arquivos dos negócios.
+
+### Como ligar Instagram e Messenger
+1. **Instagram profissional e vinculado:** no app do Instagram de cada negócio, vá em *Configurações → Tipo de conta* e mude para **Empresa**. Depois, vincule-o à Página do Facebook correspondente (*Central de Contas* ou *Configurações da Página → Contas vinculadas*).
+2. **Permita mensagens de apps:** no Instagram, vá em *Configurações → Mensagens e respostas → Ferramentas conectadas* e ative **Permitir acesso às mensagens**.
+3. **No app da Meta:** adicione os casos de uso de **Messenger** e de **mensagens do Instagram**. Em *Configuração da API* de cada um:
+   - conecte as duas Páginas (e as contas do Instagram vinculadas a elas);
+   - clique em **Gerar token** para cada Página → `REPAIR_PAGE_TOKEN` e `DEV_PAGE_TOKEN`;
+   - copie o **ID da conta do Instagram** → `REPAIR_IG_ID` e `DEV_IG_ID`.
+4. **Webhook:** use **a mesma URL** do WhatsApp (`https://SEU-SITE.netlify.app/webhook`) e o mesmo token de verificação. Assine:
+   - Messenger (Página): `messages`, `messaging_postbacks`, `message_echoes`, `feed`;
+   - Instagram: `messages`, `comments`.
+   Depois, em cada Página, clique em **Adicionar assinaturas** para essa Página.
+5. **No Netlify:** cadastre as novas variáveis do `.env.example` (`META_APP_ID`, `*_PAGE_TOKEN`, `*_IG_ID`). WhatsApp e site já estão no código e faça um deploy.
+6. **Teste** mandando “oi” no direct de cada perfil, a partir de uma conta que tenha função no app (a sua). Comente “quero” em um post.
+
+> **Para atender o público:** enquanto o app está em modo de desenvolvimento, só quem tem função no app recebe respostas. Para liberar para todos, coloque o app em **modo Ativo (Live)** e conclua a **verificação da empresa** no Portfólio empresarial. Se a Meta pedir **análise do app** para alguma permissão (o Instagram costuma pedir), grave um vídeo curto mostrando o bot respondendo no direct.
+
 
 ## Implementação passo a passo
 
@@ -119,6 +164,8 @@ Edite `src/negocios/deo-repair.mjs` e `src/negocios/deo-dev.mjs` direto no GitHu
 | Erro **131030** (destinatário não permitido) | Com o número de teste, só os números cadastrados em **Para** recebem mensagens. |
 | Você **não recebe os avisos** | A regra das 24h: mande qualquer mensagem para o número da empresa. Os pedidos continuam no painel. |
 | Mudou uma variável e nada mudou | Variáveis só valem depois de um novo deploy. |
+| Instagram/Messenger não respondem | As assinaturas do webhook (passo 4 da seção Instagram e Messenger) e “Adicionar assinaturas” na Página. Nos logs, **“conta sem negócio configurado”** mostra o ID que chegou: confira `*_IG_ID` ou o `facebookPageId`. |
+| O bot parou de responder alguém no Instagram | Você (ou o bot, se faltar `META_APP_ID`) respondeu pela caixa de entrada: ele pausa por 12h. Coloque `META_APP_ID` no Netlify. |
 | A IA não responde | Confira `ANTHROPIC_API_KEY` e se há créditos na conta da Anthropic. Sem ela, o bot cai no menu. |
 
 ---
@@ -136,7 +183,7 @@ Limites do WhatsApp para não quebrar: menu/listas com até **10** itens (títul
 
 ## Testar no computador (sem Meta)
 ```bash
-npm run teste        # roda 10 conversas simuladas
+npm run teste        # roda 15 conversas simuladas (WhatsApp, Instagram e Messenger)
 node test/simular.mjs -v   # mostra cada mensagem que o bot enviaria
 ```
 
@@ -146,6 +193,7 @@ netlify/functions/webhook.mjs   ← recebe as mensagens da Meta
 netlify/functions/painel.mjs    ← painel de pedidos (/painel)
 src/bot.mjs                     ← lógica: menu, pré-orçamento, IA, atendente, comandos do dono
 src/negocios/*.mjs              ← textos e perguntas de cada negócio
+src/social.mjs                  ← Instagram e Messenger: direct, comentários, botões
 src/whatsapp.mjs                ← envio de texto, botões, listas; download de mídia
 src/ia.mjs                      ← Claude (Anthropic) para dúvidas livres
 src/armazenamento.mjs           ← Netlify Blobs (conversas, leads, arquivos)
@@ -159,8 +207,11 @@ test/                           ← simulador local
 
 ---
 ## Histórico de versões
+- **v5**: Graph API atualizada para v25.0 (versão atual da Meta).
+- **v4**: WhatsApp, site e Instagram reais da Deo Repair e da Deo Dev inseridos nas configurações (os botões funcionam sem variáveis extras); a IA também conhece esses contatos.
+- **v3**: Instagram e Messenger (direct e comentários) levando primeiro ao WhatsApp e depois ao site; pausa automática quando você responde pela caixa de entrada; origem do lead no aviso e no painel; webhook único para os três canais.
 - **v2**: README com a implementação passo a passo (começando pelo número de teste), tabela de variáveis e seção de problemas comuns.
 - **v1**: primeira versão dos bots (menu, pré-orçamento, IA, atendimento humano com comandos do dono e painel de pedidos).
 
 ---
-*Bots Deo — v2*
+*Bots Deo — v5*
