@@ -1,4 +1,4 @@
-// Webhook único (v6) — a Meta chama esta URL para WhatsApp, Messenger e Instagram.
+// Webhook único (v7) — a Meta chama esta URL para WhatsApp, Messenger e Instagram.
 // URL final: https://SEU-SITE.netlify.app/webhook
 
 import deoRepair from "../../src/negocios/deo-repair.mjs";
@@ -8,6 +8,8 @@ import { processarMensagemSocial, processarComentario, criarEnviadorSocial } fro
 import { criarEnviador, assinaturaValida, baixarMidia } from "../../src/whatsapp.mjs";
 import { criarIA } from "../../src/ia.mjs";
 import { criarArmazenamento } from "../../src/armazenamento.mjs";
+import { registrar, registrarEntrada, comHistorico } from "../../src/historico.mjs";
+import { mesmoNumero } from "../../src/bot.mjs";
 
 const NEGOCIOS = [deoRepair, deoDev];
 const env = (k) => process.env[k];
@@ -67,7 +69,8 @@ async function tratarWhatsApp(corpo, store, ia) {
   for (const entry of corpo.entry || []) {
     for (const change of entry.changes || []) {
       const v = change.value || {};
-      if (!v.messages?.length) continue; // ignora status de entrega/leitura
+      const ecos = v.message_echoes || []; // coexistência: mensagens que VOCÊ mandou pelo app WhatsApp Business
+      if (!v.messages?.length && !ecos.length) continue; // ignora status de entrega/leitura
 
       const phoneNumberId = v.metadata?.phone_number_id;
       const negocio = NEGOCIOS.find((n) => env(n.phoneNumberIdEnv) === phoneNumberId);
@@ -75,20 +78,39 @@ async function tratarWhatsApp(corpo, store, ia) {
         console.warn("[whatsapp] número sem negócio configurado:", phoneNumberId);
         continue;
       }
-      const wa = criarEnviador({ phoneNumberId, token });
+      const dono = env("DONO_WHATSAPP");
+      const wa = comHistorico(criarEnviador({ phoneNumberId, token }), store, negocio, dono);
       const nomePerfil = v.contacts?.[0]?.profile?.name;
 
-      for (const msg of v.messages) {
+      // Coexistência: você respondeu pelo app → registra e pausa o bot nessa conversa
+      for (const eco of ecos) {
+        try {
+          if (await store.jaProcessada(`eco:${eco.id}`)) continue;
+          const tel = String(eco.to || "");
+          const texto = eco.text?.body || eco[eco.type]?.caption || `[${eco.type}]`;
+          await registrar(store, negocio.id, tel, { de: "voce-app", tipo: eco.type, texto });
+          const chave = `${negocio.id}:${tel}`;
+          const conv = (await store.lerConversa(chave)) || { etapa: "novo", indice: 0, respostas: {}, historico: [], midias: [] };
+          conv.etapa = "atendente";
+          conv.atendenteAte = Date.now() + Number(env("ATENDENTE_HORAS") || 12) * 3600e3;
+          await store.salvarConversa(chave, conv);
+        } catch (e) {
+          console.error("[whatsapp] erro no eco do app", e);
+        }
+      }
+
+      for (const msg of v.messages || []) {
         try {
           if (await store.jaProcessada(msg.id)) continue;
           await wa.lida(msg.id);
+          if (!(dono && mesmoNumero(msg.from, dono))) await registrarEntrada(store, negocio, msg, nomePerfil);
           await processarMensagem(
             { negocio, msg, nomePerfil },
             {
               store,
               wa,
               ia,
-              donoNumero: env("DONO_WHATSAPP"),
+              donoNumero: dono,
               baixarMidia: (id) => baixarMidia(id, token),
               urlSite: env("URL"), // o Netlify preenche sozinho
               adminToken: env("ADMIN_TOKEN"),
