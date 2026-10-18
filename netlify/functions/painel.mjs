@@ -4,6 +4,7 @@
 import { criarArmazenamento } from "../../src/armazenamento.mjs";
 import { timingSafeEqual } from "node:crypto";
 
+const ORIGENS = { whatsapp: "💬 WhatsApp", instagram: "📸 Instagram", facebook: "📘 Facebook", site: "🌐 Site" };
 const esc = (s = "") => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 function tokenOk(recebido) {
@@ -42,7 +43,7 @@ export default async (req) => {
         .join(" ");
       const zap = `https://wa.me/${esc(l.telefone)}`;
       return `<article class="${esc(l.negocio)}">
-        <header><span class="tag">${esc(l.negocioNome)}</span><time>${esc(quando)}</time></header>
+        <header><span class="tag">${esc(l.negocioNome)}</span><span class="origem">${ORIGENS[l.origem || "whatsapp"] || ""}</span><time>${esc(quando)}</time></header>
         <h2>${esc(l.respostas?.nome || l.nomePerfil || "Cliente")}</h2>
         <dl>${campos}</dl>
         <footer><a href="${zap}" target="_blank">📞 ${esc(l.telefone)}</a> ${midias}</footer>
@@ -62,7 +63,7 @@ main{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(300px,1
 article{background:var(--card);border:1px solid var(--linha);border-left:4px solid var(--dev);border-radius:12px;padding:16px}
 article.deo-repair{border-left-color:var(--repair)}
 article header{display:flex;justify-content:space-between;color:var(--sub);font-size:13px}
-.tag{font-weight:600}.deo-repair .tag{color:var(--repair)}.deo-dev .tag{color:var(--dev)}
+.tag{font-weight:600}.origem{margin-left:auto;margin-right:10px}.deo-repair .tag{color:var(--repair)}.deo-dev .tag{color:var(--dev)}
 h2{margin:6px 0 10px;font-size:18px}dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0}
 dt{color:var(--sub);text-transform:capitalize}dd{margin:0;word-break:break-word}
 footer{margin-top:12px;display:flex;gap:12px;flex-wrap:wrap}footer a{color:var(--txt)}
@@ -75,7 +76,7 @@ footer{margin-top:12px;display:flex;gap:12px;flex-wrap:wrap}footer a{color:var(-
 <a href="${link("&negocio=deo-dev")}" class="${filtro === "deo-dev" ? "on" : ""}">💻 Deo Dev</a>
 </nav>
 <main>${cartoes || '<p class="vazio">Nenhum pedido ainda.</p>'}</main>
-<span class="ver">Bots Deo v2</span>
+<span class="ver">Bots Deo v5</span>
 </body></html>`;
 
   return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
