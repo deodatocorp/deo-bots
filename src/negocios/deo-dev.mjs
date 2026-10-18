@@ -1,5 +1,5 @@
 // =============================================================
-//  DEO DEV — configuração do bot (v2)
+//  DEO DEV — configuração do bot (v5)
 //  Tudo que o cliente lê sai daqui. Edite à vontade.
 //  Itens marcados com ✏️ são placeholders que você precisa preencher.
 // =============================================================
@@ -10,6 +10,32 @@ export default {
   emoji: "💻",
 
   phoneNumberIdEnv: "DEV_PHONE_NUMBER_ID",
+
+  // ---------------- Instagram e Messenger (v3) ----------------
+  // Prefixo das variáveis de ambiente deste negócio no Netlify:
+  // DEV_PAGE_TOKEN, DEV_WHATSAPP_NUMERO, DEV_SITE_URL, DEV_IG_ID (e opcionalmente DEV_PAGE_ID)
+  envPrefixo: "DEV",
+  redes: {
+    facebook: "https://www.facebook.com/profile.php?id=61595093687313",
+    facebookPageId: "61595093687313", // pode ser sobrescrito por DEV_PAGE_ID
+    instagram: "https://www.instagram.com/deodev.corp/",
+    whatsapp: "5521966986094", // pode ser sobrescrito por DEV_WHATSAPP_NUMERO
+    site: "https://deo-dev.netlify.app/", // pode ser sobrescrito por DEV_SITE_URL
+  },
+  social: {
+    saudacao:
+      'Olá! 👋 Aqui é a Deo Dev 💻\nCriamos landing pages profissionais, identidade visual, posts para redes sociais e deixamos seu negócio visível no Google. Planos a partir de R$ 199,99.\n\nO orçamento é feito pelo WhatsApp. Toque no botão abaixo 👇',
+    cartaoTitulo: "Deo Dev 💻",
+    cartaoSubtitulo: "Landing page, identidade visual, redes sociais e Google",
+    botaoWhats: "Orçamento no WhatsApp",
+    botaoSite: "Ver o site",
+    // Texto que já vem escrito quando o cliente abre o WhatsApp ({canal} vira Instagram ou Facebook)
+    mensagemWhats: "Oi! Vim pelo {canal} e quero um orçamento 😊",
+    // Comentários com estas palavras recebem uma DM automática
+    palavrasComentario: ["orcamento", "quero", "preco", "valor", "quanto", "info", "interesse", "como funciona"],
+    respostaComentario: "Te chamei no direct! 📩",
+    respostaComentarioFacebook: "Te mandei uma mensagem no Messenger! 📩",
+  },
 
   boasVindas:
     "Olá! 👋 Aqui é a *Deo Dev* 💻\n" +
@@ -96,5 +122,8 @@ VISÃO: o Google é o primeiro contato do cliente com o negócio; a Deo Dev faz 
 PREÇOS: Plano 1 R$ 199,99; Plano 2 R$ 499,99; Assinatura mensal R$ 199,99/mês. Detalhes de cada plano: ✏️ preencher. Não prometa nada que não esteja aqui.
 PRAZO DE ENTREGA: ✏️ preencher.
 PAGAMENTO: ✏️ preencher.
+SITE: https://deo-dev.netlify.app/
+INSTAGRAM: @deodev.corp
+WHATSAPP: (21) 96698-6094
 `.trim(),
 };

@@ -1,5 +1,5 @@
 // =============================================================
-//  DEO REPAIR — configuração do bot (v2)
+//  DEO REPAIR — configuração do bot (v5)
 //  Tudo que o cliente lê sai daqui. Edite à vontade.
 //  Itens marcados com ✏️ são placeholders que você precisa preencher.
 // =============================================================
@@ -12,6 +12,32 @@ export default {
   // ID do número na Meta (WhatsApp Manager → Configuração da API).
   // Vem da variável de ambiente para não ficar no código.
   phoneNumberIdEnv: "REPAIR_PHONE_NUMBER_ID",
+
+  // ---------------- Instagram e Messenger (v3) ----------------
+  // Prefixo das variáveis de ambiente deste negócio no Netlify:
+  // REPAIR_PAGE_TOKEN, REPAIR_WHATSAPP_NUMERO, REPAIR_SITE_URL, REPAIR_IG_ID (e opcionalmente REPAIR_PAGE_ID)
+  envPrefixo: "REPAIR",
+  redes: {
+    facebook: "https://www.facebook.com/profile.php?id=61595494169589",
+    facebookPageId: "61595494169589", // pode ser sobrescrito por REPAIR_PAGE_ID
+    instagram: "https://www.instagram.com/deo_repair/",
+    whatsapp: "5521992291220", // pode ser sobrescrito por REPAIR_WHATSAPP_NUMERO
+    site: "https://deorepair.netlify.app/", // pode ser sobrescrito por REPAIR_SITE_URL
+  },
+  social: {
+    saudacao:
+      'Olá! 👋 Aqui é a Deo Repair 🔧\nConsertamos smartphones, tablets, notebooks e computadores, e fazemos upgrades em videogames. Todo reparo é filmado na abertura e no fechamento, e você recebe o vídeo + orçamento detalhado.\n\nO orçamento é feito pelo WhatsApp. Toque no botão abaixo 👇',
+    cartaoTitulo: "Deo Repair 🔧",
+    cartaoSubtitulo: "Conserto de celular, tablet, notebook, PC e videogame",
+    botaoWhats: "Orçamento no WhatsApp",
+    botaoSite: "Ver o site",
+    // Texto que já vem escrito quando o cliente abre o WhatsApp ({canal} vira Instagram ou Facebook)
+    mensagemWhats: "Oi! Vim pelo {canal} e quero um orçamento 😊",
+    // Comentários com estas palavras recebem uma DM automática
+    palavrasComentario: ["orcamento", "quero", "preco", "valor", "quanto", "info", "interesse", "como funciona"],
+    respostaComentario: "Te chamei no direct! 📩",
+    respostaComentarioFacebook: "Te mandei uma mensagem no Messenger! 📩",
+  },
 
   boasVindas:
     "Olá! 👋 Aqui é a *Deo Repair* 🔧\n" +
@@ -112,5 +138,8 @@ PREÇOS: não existe tabela fixa — o valor depende do modelo e do diagnóstico
 HORÁRIO/LOCAL: ✏️ preencher.
 GARANTIA: ✏️ preencher (ex.: 90 dias nos serviços).
 PAGAMENTO: ✏️ preencher (ex.: Pix, cartão).
+SITE: https://deorepair.netlify.app/
+INSTAGRAM: @deo_repair
+WHATSAPP: (21) 99229-1220
 `.trim(),
 };
