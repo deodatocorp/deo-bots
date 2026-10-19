@@ -8,11 +8,13 @@ const corta = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
 const YCLOUD = "https://api.ycloud.com/v2/whatsapp/messages/sendDirectly";
 const e164 = (n) => "+" + String(n || "").replace(/\D/g, "");
 
-// v12: se a Meta recusar o envio (ex.: número em coexistência pelo YCloud sem permissão
-// para o nosso app), tenta de novo pela API do YCloud. Configure YCLOUD_API_KEY no Netlify.
-// ycloud = { apiKey, from } — from é o número da empresa (ex.: 5521966986094)
+// v13: números em coexistência ligados pelo YCloud respondem pela API do YCloud (caminho
+// oficial: na coexistência por parceiro, quem responde ao cliente é o parceiro).
+// ycloud = { apiKey, from, sempre } — from é o número da empresa (ex.: 5521966986094);
+// sempre=true manda tudo pelo YCloud; sem "sempre", o YCloud só entra se a Meta recusar por permissão.
+// As mensagens dos clientes continuam chegando pelo webhook da Meta.
 export function criarEnviador({ phoneNumberId, token, ycloud, fetchImpl = fetch }) {
-  let usarYcloud = false; // depois de uma recusa da Meta, vai direto pelo YCloud nesta execução
+  let usarYcloud = Boolean(ycloud?.sempre);
 
   async function pelaMeta(payload) {
     const res = await fetchImpl(`${GRAPH()}/${phoneNumberId}/messages`, {
@@ -39,7 +41,11 @@ export function criarEnviador({ phoneNumberId, token, ycloud, fetchImpl = fetch 
 
   async function enviar(payload) {
     const temYcloud = Boolean(ycloud?.apiKey && ycloud?.from);
-    if (usarYcloud && temYcloud) return peloYcloud(payload);
+    if (usarYcloud && !temYcloud) {
+      console.error("[whatsapp] este número responde pelo YCloud, mas falta a variável YCLOUD_API_KEY no Netlify");
+      return false;
+    }
+    if (usarYcloud) return peloYcloud(payload);
     const r = await pelaMeta(payload);
     if (r.ok) return true;
     if (r.permissao && temYcloud) {
