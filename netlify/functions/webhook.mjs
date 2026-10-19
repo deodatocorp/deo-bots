@@ -1,4 +1,4 @@
-// Webhook único (v11) — a Meta chama esta URL para WhatsApp, Messenger e Instagram.
+// Webhook único (v12) — a Meta chama esta URL para WhatsApp, Messenger e Instagram.
 // URL final: https://SEU-SITE.netlify.app/webhook
 
 import deoRepair from "../../src/negocios/deo-repair.mjs";
@@ -99,7 +99,8 @@ async function tratarWhatsApp(corpo, store, ia) {
         continue;
       }
       const dono = env("DONO_WHATSAPP");
-      const wa = comHistorico(criarEnviador({ phoneNumberId, token }), store, negocio, dono);
+      const ycloud = { apiKey: env("YCLOUD_API_KEY"), from: negocio.redes?.whatsapp };
+      const wa = comHistorico(criarEnviador({ phoneNumberId, token, ycloud }), store, negocio, dono);
       const nomePerfil = v.contacts?.[0]?.profile?.name;
 
       // Coexistência: você respondeu pelo app → registra e pausa o bot nessa conversa
