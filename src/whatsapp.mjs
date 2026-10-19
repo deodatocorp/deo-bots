@@ -35,8 +35,27 @@ export function criarEnviador({ phoneNumberId, token, ycloud, fetchImpl = fetch 
       headers: { "X-API-Key": ycloud.apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({ from: e164(ycloud.from), to: e164(to), ...resto }),
     });
-    if (!res.ok) console.error("[ycloud] erro ao enviar:", res.status, await res.text());
-    return res.ok;
+    const corpo = await res.text();
+    if (!res.ok) {
+      console.error("[ycloud] erro ao enviar:", res.status, corpo);
+      return false;
+    }
+    // Confere a entrega: "accepted" só quer dizer que entrou na fila do YCloud
+    try {
+      const msg = JSON.parse(corpo);
+      console.log("[ycloud] aceita:", msg.id, msg.status);
+      if (msg.id) {
+        await new Promise((r) => setTimeout(r, 3500));
+        const r2 = await fetchImpl(`https://api.ycloud.com/v2/whatsapp/messages/${msg.id}`, { headers: { "X-API-Key": ycloud.apiKey } });
+        const st = await r2.json().catch(() => ({}));
+        const info = { id: st.id, status: st.status, errorCode: st.errorCode, errorMessage: st.errorMessage, whatsappApiError: st.whatsappApiError };
+        console.log("[ycloud] status:", JSON.stringify(info));
+        if (st.status === "failed") return false;
+      }
+    } catch (e) {
+      console.error("[ycloud] não deu para conferir o status", e);
+    }
+    return true;
   }
 
   async function enviar(payload) {
