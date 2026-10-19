@@ -1,7 +1,7 @@
 // =============================================================
-//  DEO DEV — configuração do bot (v5)
+//  DEO DEV — configuração do bot (v11)
 //  Tudo que o cliente lê sai daqui. Edite à vontade.
-//  Itens marcados com ✏️ são placeholders que você precisa preencher.
+//  Preços e planos conferidos com o site (deo-dev.netlify.app).
 // =============================================================
 
 export default {
@@ -24,7 +24,7 @@ export default {
   },
   social: {
     saudacao:
-      'Olá! 👋 Aqui é a Deo Dev 💻\nCriamos landing pages profissionais, identidade visual, posts para redes sociais e deixamos seu negócio visível no Google. Planos a partir de R$ 199,99.\n\nO orçamento é feito pelo WhatsApp. Toque no botão abaixo 👇',
+      'Olá! 👋 Aqui é a Deo Dev 💻\nCriamos landing pages profissionais, identidade visual, posts para redes sociais e deixamos seu negócio visível no Google. Todo plano começa com um diagnóstico gratuito.\n\nO orçamento é feito pelo WhatsApp. Toque no botão abaixo 👇',
     cartaoTitulo: "Deo Dev 💻",
     cartaoSubtitulo: "Landing page, identidade visual, redes sociais e Google",
     botaoWhats: "Orçamento no WhatsApp",
@@ -46,7 +46,7 @@ export default {
   menu: [
     { id: "orcamento", titulo: "Quero um orçamento", descricao: "Conte sobre o seu negócio" },
     { id: "servicos", titulo: "Serviços", descricao: "O que a Deo Dev faz" },
-    { id: "planos", titulo: "Planos e preços", descricao: "A partir de R$ 199,99" },
+    { id: "planos", titulo: "Planos e preços", descricao: "A partir de R$ 350 ou R$ 199,99/mês" },
     { id: "por_que_google", titulo: "Por que estar no Google", descricao: "O primeiro contato do seu cliente" },
     { id: "duvida", titulo: "Tirar uma dúvida", descricao: "Pergunte o que quiser" },
     { id: "atendente", titulo: "Falar com o Nathan", descricao: "Atendimento humano" },
@@ -62,11 +62,13 @@ export default {
       "Hoje o Google é o primeiro contato do cliente com o seu negócio. Vamos fazer esse primeiro contato valer a pena. 🚀",
 
     planos:
-      "*Planos Deo Dev* 💰\n\n" +
-      "🔹 *Plano 1 — R$ 199,99*\n✏️ (o que inclui)\n\n" +
-      "🔸 *Plano 2 — R$ 499,99*\n✏️ (o que inclui)\n\n" +
-      "🔁 *Assinatura mensal — R$ 199,99/mês*\n✏️ (o que inclui: manutenção, posts, etc.)\n\n" +
-      "Quer ajuda para escolher? Toque em *Quero um orçamento* no menu.",
+      "*Planos Deo Dev* 💰\nTodo plano começa com um *diagnóstico gratuito*.\n\n" +
+      "📍 *Presença — a partir de R$ 350* (pagamento único)\nPerfil no Google completo, WhatsApp e localização no Maps, demonstração de identidade visual e landing page, catálogo ou menu de valores.\n\n" +
+      "🎨 *Marca — a partir de R$ 1.000* (pagamento único)\nIdentidade visual completa, landing page com a nova marca, perfil no Google e redes padronizados, demonstração de posts.\n\n" +
+      "🚀 *Negócio Pronto — R$ 1.700* (pagamento único)\nIdentidade visual e manual da marca, landing page profissional, perfil no Google otimizado, catálogo ou menu de valores, TikTok, Instagram e Facebook configurados e demonstração de posts.\n\n" +
+      "🔁 *Assinatura — a partir de R$ 199,99/mês*\nGestão de TikTok, Instagram e Facebook, até 12 posts por mês, Google atualizado e avaliações respondidas, relatório mensal. Fidelidade de 12 meses.\n\n" +
+      "⏱️ Prazo de entrega: *de 7 a 30 dias*, conforme o plano.\n💳 Pagamento: *Pix, cartão ou parcelado*.\n\n" +
+      "Dá para combinar: comece com o Negócio Pronto e mantenha tudo em dia com a assinatura. Quer ajuda para escolher? Toque em *Quero um orçamento* no menu.",
 
     por_que_google:
       "*Por que estar no Google?* 🔎\n\n" +
@@ -98,7 +100,7 @@ export default {
         tipo: "lista",
         pergunta: "Algum *plano* chamou sua atenção?",
         botaoLista: "Escolher plano",
-        opcoes: ["Plano 1 (R$ 199,99)", "Plano 2 (R$ 499,99)", "Mensal (R$ 199,99)", "Quero ajuda p/ escolher"],
+        opcoes: ["Presença (R$ 350)", "Marca (R$ 1.000)", "Negócio Pronto R$1.700", "Assinatura R$199,99/mês", "Quero ajuda p/ escolher"],
       },
       { campo: "presenca_atual", tipo: "texto", pergunta: "Você já tem *site, Instagram ou perfil no Google*? Se sim, mande o link ou @ (ou responda *não*)." },
     ],
@@ -119,9 +121,19 @@ export default {
 Você é o assistente virtual da Deo Dev, empresa do Nathan que cuida da presença digital de estabelecimentos.
 SERVIÇOS: landing pages profissionais, identidade visual (logo, cores, fontes), posts e gestão de redes sociais, melhoria da visibilidade do negócio no Google (perfil da empresa no Google/Maps).
 VISÃO: o Google é o primeiro contato do cliente com o negócio; a Deo Dev faz esse contato causar boa impressão.
-PREÇOS: Plano 1 R$ 199,99; Plano 2 R$ 499,99; Assinatura mensal R$ 199,99/mês. Detalhes de cada plano: ✏️ preencher. Não prometa nada que não esteja aqui.
-PRAZO DE ENTREGA: ✏️ preencher.
-PAGAMENTO: ✏️ preencher.
+DIAGNÓSTICO: todo plano começa com um diagnóstico gratuito de como o negócio aparece hoje no Google, nas redes e no site.
+PLANOS (pagamento único):
+- Presença, a partir de R$ 350: perfil no Google completo; WhatsApp e localização no Maps; demonstração de identidade visual e landing page; catálogo ou menu de valores.
+- Marca, a partir de R$ 1.000: identidade visual completa; landing page com a nova marca; perfil no Google e redes padronizados; demonstração de posts.
+- Negócio Pronto, R$ 1.700: identidade visual completa e manual da marca; landing page profissional; perfil no Google completo e otimizado; catálogo ou menu de valores; TikTok, Instagram e Facebook configurados no padrão da marca; demonstração de posts.
+ASSINATURA MENSAL, a partir de R$ 199,99/mês: gestão de TikTok, Instagram e Facebook; até 12 posts por mês; Google atualizado e avaliações respondidas; relatório mensal; serviços personalizados (dashboard, banco de clientes, controle de gastos) sob consulta, o que pode aumentar o valor. Fidelidade contratual de 12 meses, com rescisão antecipada conforme o contrato.
+Pode contratar só um serviço. Também montamos plano sob medida.
+COMO FUNCIONA: 1) diagnóstico; 2) proposta com o que será feito, prazos e valores; 3) criação, com aprovação do cliente antes de ir ao ar; 4) publicação e acompanhamento.
+PRAZO DE ENTREGA: de 7 a 30 dias, dependendo do plano; o prazo exato vem na proposta, antes de fechar.
+GOOGLE: não garantimos primeiro lugar (ninguém pode); deixamos o perfil completo, correto e ativo.
+PAGAMENTO: Pix, cartão ou parcelado (condições do parcelamento combinadas na proposta).
+HORÁRIO DE ATENDIMENTO: das 8h às 22h.
+Não prometa nada que não esteja aqui.
 SITE: https://deo-dev.netlify.app/
 INSTAGRAM: @deodev.corp
 WHATSAPP: (21) 96698-6094

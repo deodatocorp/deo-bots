@@ -1,7 +1,7 @@
 // =============================================================
-//  DEO REPAIR — configuração do bot (v5)
+//  DEO REPAIR — configuração do bot (v11)
 //  Tudo que o cliente lê sai daqui. Edite à vontade.
-//  Itens marcados com ✏️ são placeholders que você precisa preencher.
+//  Informações conferidas com o site (deorepair.netlify.app).
 // =============================================================
 
 export default {
@@ -58,12 +58,12 @@ export default {
   respostas: {
     servicos:
       "*Serviços da Deo Repair* 🔧\n\n" +
-      "📱 *Smartphones* — troca de tela, bateria, conector de carga, câmera, botões, software\n" +
-      "📲 *Tablets* — tela, bateria, carga, software\n" +
-      "💻 *Notebooks* — limpeza, pasta térmica, SSD, memória, tela, teclado, formatação\n" +
-      "🖥️ *Computadores* — montagem, upgrade, limpeza, formatação, diagnóstico\n" +
-      "🎮 *Videogames* — upgrades, limpeza e manutenção\n\n" +
-      "✏️ (ajuste esta lista com os serviços que você realmente faz)",
+      "📱 *Smartphones* (Android e iPhone) — tela, bateria, conector de carga, câmera e lente, tampa traseira, áudio e microfone, celular molhado, placa\n" +
+      "📲 *Tablets* — tela e touch, bateria, carga, botões e áudio, sistema, placa\n" +
+      "💻 *Notebooks e MacBooks* — tela, teclado e touchpad, bateria, upgrade de SSD e memória, limpeza e pasta térmica, dobradiça, líquido derramado, formatação\n" +
+      "🖥️ *Computadores* — diagnóstico, montagem e upgrade, limpeza, formatação, vírus e lentidão, rede e periféricos\n" +
+      "🎮 *Videogames* — SSD maior, limpeza e pasta térmica, analógicos com drift (opção Hall Effect), controles, HDMI, leitor de disco\n\n" +
+      "Não achou o seu? Conta o que está acontecendo que a gente te diz se tem jeito. 😉",
 
     como_funciona:
       "*Como funciona o reparo na Deo Repair* 🎥\n\n" +
@@ -72,13 +72,16 @@ export default {
       "3️⃣ O reparo é feito\n" +
       "4️⃣ O aparelho é *filmado no fechamento*\n" +
       "5️⃣ Você recebe *o vídeo* + um *orçamento detalhado* de tudo o que foi feito\n\n" +
+      "🛡️ *90 dias de garantia por escrito* em todo serviço. Você aprova o valor antes — nada é feito sem o seu ok.\n\n" +
       "Transparência total, do começo ao fim. ✅",
 
     horario:
       "*Horário e local* 📍\n\n" +
-      "🕘 ✏️ Seg a Sex, 9h às 18h | Sáb, 9h às 13h\n" +
-      "📍 ✏️ Bairro / forma de entrega (leva e traz? ponto de encontro?)\n\n" +
-      "Fora do horário você pode deixar sua mensagem — respondemos assim que possível.",
+      "📍 Atendemos no *Rio de Janeiro — RJ*.\n" +
+      "🕘 Atendimento *das 8h às 22h*.\n" +
+      "📦 A forma de entrega do aparelho é combinada aqui pelo WhatsApp, depois do pré-orçamento.\n" +
+      "💳 Pagamento: *Pix, cartão ou parcelado*.\n\n" +
+      "Pode deixar sua mensagem a qualquer hora — respondemos assim que possível.",
 
     atendente:
       "Beleza! Avisei o Nathan e ele vai te responder por aqui em breve. 🙌\n" +
@@ -135,9 +138,15 @@ Você é o assistente virtual da Deo Repair, assistência técnica de eletrônic
 SERVIÇOS: conserto de smartphones, tablets, notebooks e computadores; upgrades em videogames.
 DIFERENCIAL: todo reparo é filmado na abertura e no fechamento do aparelho. O cliente recebe o vídeo e um orçamento detalhado de tudo o que foi feito. É o próprio Nathan quem faz os reparos.
 PREÇOS: não existe tabela fixa — o valor depende do modelo e do diagnóstico. NUNCA informe preço; ofereça o pré-orçamento.
-HORÁRIO/LOCAL: ✏️ preencher.
-GARANTIA: ✏️ preencher (ex.: 90 dias nos serviços).
-PAGAMENTO: ✏️ preencher (ex.: Pix, cartão).
+SERVIÇOS DETALHADOS: smartphones Android e iPhone (tela, bateria, conector de carga, câmera e lente, tampa traseira, áudio e microfone, celular molhado, placa e "não liga"); tablets (tela e touch, bateria, carga, botões e áudio, sistema, placa); notebooks e MacBooks (tela, teclado e touchpad, bateria e carga, upgrade de SSD e memória, limpeza e pasta térmica, dobradiça e carcaça, líquido derramado, formatação com backup); computadores (não liga/reinicia, montagem e upgrade, limpeza, formatação, vírus e lentidão, rede e periféricos); videogames PlayStation, Xbox e Nintendo Switch (SSD maior, limpeza e pasta térmica, analógicos com drift com opção Hall Effect, controles, porta HDMI, leitor de disco, não liga). Marcas: Apple, Samsung, Motorola, Xiaomi, Lenovo, Dell, HP, Acer, Asus, PlayStation, Xbox, Nintendo e outras.
+COMO FUNCIONA: diagnóstico e orçamento antes de mexer em qualquer coisa; o cliente aprova; abertura e fechamento filmados; o cliente recebe o vídeo e o orçamento detalhado com cada peça e serviço. Se surgir algo novo no meio do caminho, o Nathan avisa e o cliente decide.
+ARQUIVOS: o reparo é no hardware e não mexemos em arquivos e fotos; mesmo assim recomendamos backup antes.
+CONSOLES: podem perder a garantia de fábrica ao serem abertos; avisamos antes de começar.
+LÍQUIDO: desligue na hora, tire da tomada, não tente carregar, esqueça o arroz e traga o quanto antes.
+GARANTIA: 90 dias, por escrito no orçamento, em todo serviço.
+LOCAL: Rio de Janeiro — RJ. A forma de entrega do aparelho é combinada pelo WhatsApp com o Nathan; não invente endereço.
+HORÁRIO DE ATENDIMENTO: das 8h às 22h.
+PAGAMENTO: Pix, cartão ou parcelado (condições do parcelamento combinadas no orçamento).
 SITE: https://deorepair.netlify.app/
 INSTAGRAM: @deo_repair
 WHATSAPP: (21) 99229-1220
