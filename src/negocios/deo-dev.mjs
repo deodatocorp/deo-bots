@@ -11,6 +11,9 @@ export default {
 
   phoneNumberIdEnv: "DEV_PHONE_NUMBER_ID",
 
+  // v13: número em coexistência ligado pelo YCloud → as respostas saem pela API do YCloud
+  envio: "ycloud",
+
   // ---------------- Instagram e Messenger (v3) ----------------
   // Prefixo das variáveis de ambiente deste negócio no Netlify:
   // DEV_PAGE_TOKEN, DEV_WHATSAPP_NUMERO, DEV_SITE_URL, DEV_IG_ID (e opcionalmente DEV_PAGE_ID)
