@@ -1,14 +1,14 @@
-// Guarda o estado das conversas e os leads no Netlify Blobs
+// Guarda o estado das conversas e os leads no Netlify Blobs (v10: leitura sempre atualizada)
 // (armazenamento grátis que já vem com o Netlify, sem banco de dados extra).
 
 import { getStore } from "@netlify/blobs";
 
 export function criarArmazenamento() {
-  const conversas = getStore("conversas");
-  const leads = getStore("leads");
-  const processadas = getStore("mensagens-processadas");
-  const midias = getStore("midias");
-  const historico = getStore("historico");
+  const conversas = getStore({ name: "conversas", consistency: "strong" });
+  const leads = getStore({ name: "leads", consistency: "strong" });
+  const processadas = getStore({ name: "mensagens-processadas", consistency: "strong" });
+  const midias = getStore({ name: "midias", consistency: "strong" });
+  const historico = getStore({ name: "historico", consistency: "strong" });
 
   return {
     // Histórico das conversas (caixa de entrada do painel)
