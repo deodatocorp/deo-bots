@@ -1,4 +1,4 @@
-# 🤖 Bots Deo Repair & Deo Dev — WhatsApp, Instagram e Messenger · **v9**
+# 🤖 Bots Deo Repair & Deo Dev — WhatsApp, Instagram e Messenger · **v10**
 
 Um único projeto no Netlify atende **os dois negócios em três canais**: WhatsApp, Instagram e Messenger. O bot descobre qual negócio e qual canal é pela mensagem que chega e responde com a configuração certa.
 
@@ -216,6 +216,7 @@ test/                           ← simulador local
 
 ---
 ## Histórico de versões
+- **v10**: corrige perguntas repetidas e mensagens sumindo do histórico (armazenamento com leitura sempre atualizada — `consistency: "strong"`).
 - **v9**: números reais por coexistência (YCloud): o webhook reconhece a empresa pelo número real e guarda o ID sozinho; o painel responde pelo número real; `/configurar` assina os ecos do app (`smb_message_echoes`) e lista os números da conta.
 - **v8**: painel redesenhado com a identidade da Deodato Corp e tema por empresa (logo, cores, claro/escuro); visão geral com indicadores e gráfico; quadro de pedidos com etapas, valor, retorno e exportação; respostas rápidas editáveis; ficha do cliente com notas internas; busca, filtros, não lidas, aviso da janela de 24h e som.
 - **v7**: caixa de entrada no painel (`/painel`): conversas dos dois negócios, histórico, resposta pelo número da empresa, botões Assumir/Devolver ao bot; suporte à coexistência (respostas suas pelo app WhatsApp Business pausam o bot e entram no histórico).
@@ -227,4 +228,4 @@ test/                           ← simulador local
 - **v1**: primeira versão dos bots (menu, pré-orçamento, IA, atendimento humano com comandos do dono e painel de pedidos).
 
 ---
-*Bots Deo — v9*
+*Bots Deo — v10*
