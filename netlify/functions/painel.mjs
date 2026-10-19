@@ -11,7 +11,7 @@ import deoRepair from "../../src/negocios/deo-repair.mjs";
 import deoDev from "../../src/negocios/deo-dev.mjs";
 import { timingSafeEqual } from "node:crypto";
 
-const VERSAO = "v12";
+const VERSAO = "v13";
 const NEGOCIOS = { "deo-repair": deoRepair, "deo-dev": deoDev };
 const HORAS = () => Number(process.env.ATENDENTE_HORAS || 12);
 const ETAPAS = ["novo", "orcamento", "aprovado", "concluido", "perdido"];
@@ -168,8 +168,9 @@ export default async (req) => {
     // Número real (aprendido pelo webhook) tem prioridade sobre o de teste
     const real = await ajustes.get(`numero/${negocio.id}`, { type: "json" });
     const phoneNumberId = real?.phoneNumberId || process.env[negocio.phoneNumberIdEnv];
-    if (!phoneNumberId || phoneNumberId === "0") return json({ ok: false, erro: `O número da ${negocio.nome} ainda não está configurado.` }, 400);
-    const wa = criarEnviador({ phoneNumberId, token: process.env.WHATSAPP_TOKEN, ycloud: { apiKey: process.env.YCLOUD_API_KEY, from: negocio.redes?.whatsapp } });
+    if (negocio.envio === "ycloud" && !process.env.YCLOUD_API_KEY) return json({ ok: false, erro: `A ${negocio.nome} responde pelo YCloud: falta a variável YCLOUD_API_KEY no Netlify.` }, 400);
+    if (negocio.envio !== "ycloud" && (!phoneNumberId || phoneNumberId === "0")) return json({ ok: false, erro: `O número da ${negocio.nome} ainda não está configurado.` }, 400);
+    const wa = criarEnviador({ phoneNumberId, token: process.env.WHATSAPP_TOKEN, ycloud: { apiKey: process.env.YCLOUD_API_KEY, from: negocio.redes?.whatsapp, sempre: negocio.envio === "ycloud" } });
     const ok = await wa.texto(tel, msg.slice(0, 4000));
     await registrar(store, negocio.id, tel, { de: "voce-painel", texto: msg, ...(ok ? {} : { falhou: true }) });
     // Você assumiu: o bot para de responder esse cliente por um tempo
