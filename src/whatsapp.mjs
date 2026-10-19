@@ -5,18 +5,49 @@ const GRAPH = () => `https://graph.facebook.com/${process.env.GRAPH_VERSION || "
 
 const corta = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
 
-export function criarEnviador({ phoneNumberId, token, fetchImpl = fetch }) {
-  async function enviar(payload) {
+const YCLOUD = "https://api.ycloud.com/v2/whatsapp/messages/sendDirectly";
+const e164 = (n) => "+" + String(n || "").replace(/\D/g, "");
+
+// v12: se a Meta recusar o envio (ex.: número em coexistência pelo YCloud sem permissão
+// para o nosso app), tenta de novo pela API do YCloud. Configure YCLOUD_API_KEY no Netlify.
+// ycloud = { apiKey, from } — from é o número da empresa (ex.: 5521966986094)
+export function criarEnviador({ phoneNumberId, token, ycloud, fetchImpl = fetch }) {
+  let usarYcloud = false; // depois de uma recusa da Meta, vai direto pelo YCloud nesta execução
+
+  async function pelaMeta(payload) {
     const res = await fetchImpl(`${GRAPH()}/${phoneNumberId}/messages`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", ...payload }),
     });
-    if (!res.ok) {
-      const erro = await res.text();
-      console.error("[whatsapp] erro ao enviar:", res.status, erro);
-    }
+    if (res.ok) return { ok: true };
+    const erro = await res.text();
+    console.error("[whatsapp] erro ao enviar:", res.status, erro);
+    return { ok: false, permissao: /"code":10\b|"code":200\b/.test(erro) };
+  }
+
+  async function peloYcloud(payload) {
+    const { to, ...resto } = payload;
+    const res = await fetchImpl(YCLOUD, {
+      method: "POST",
+      headers: { "X-API-Key": ycloud.apiKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: e164(ycloud.from), to: e164(to), ...resto }),
+    });
+    if (!res.ok) console.error("[ycloud] erro ao enviar:", res.status, await res.text());
     return res.ok;
+  }
+
+  async function enviar(payload) {
+    const temYcloud = Boolean(ycloud?.apiKey && ycloud?.from);
+    if (usarYcloud && temYcloud) return peloYcloud(payload);
+    const r = await pelaMeta(payload);
+    if (r.ok) return true;
+    if (r.permissao && temYcloud) {
+      usarYcloud = true;
+      console.log("[whatsapp] Meta recusou; enviando pelo YCloud");
+      return peloYcloud(payload);
+    }
+    return false;
   }
 
   return {
@@ -65,7 +96,12 @@ export function criarEnviador({ phoneNumberId, token, fetchImpl = fetch }) {
       }),
 
     // Marca como lida (os dois tracinhos azuis)
-    lida: (messageId) => enviar({ status: "read", message_id: messageId }),
+    lida: async (messageId) => {
+      if (usarYcloud) return true; // no YCloud a leitura é marcada pelo próprio painel deles
+      const r = await pelaMeta({ status: "read", message_id: messageId });
+      if (!r.ok && r.permissao) usarYcloud = true;
+      return r.ok;
+    },
   };
 }
 
