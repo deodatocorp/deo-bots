@@ -1,4 +1,4 @@
-// Painel dos bots (v8): visão geral, caixa de entrada, quadro de pedidos e respostas rápidas,
+// Painel dos bots (v9): visão geral, caixa de entrada, quadro de pedidos e respostas rápidas,
 // com a identidade da Deodato Corp e o tema de cada empresa.
 // Acesse: https://SEU-SITE.netlify.app/painel?token=SEU_ADMIN_TOKEN
 
@@ -11,7 +11,7 @@ import deoRepair from "../../src/negocios/deo-repair.mjs";
 import deoDev from "../../src/negocios/deo-dev.mjs";
 import { timingSafeEqual } from "node:crypto";
 
-const VERSAO = "v8";
+const VERSAO = "v9";
 const NEGOCIOS = { "deo-repair": deoRepair, "deo-dev": deoDev };
 const HORAS = () => Number(process.env.ATENDENTE_HORAS || 12);
 const ETAPAS = ["novo", "orcamento", "aprovado", "concluido", "perdido"];
@@ -76,7 +76,8 @@ export default async (req) => {
     const respostas = {};
     for (const [id, n] of Object.entries(NEGOCIOS)) {
       const pid = process.env[n.phoneNumberIdEnv];
-      negocios[id] = { nome: n.nome, rotulos: n.triagem?.rotulos || {}, conectado: Boolean(pid && pid !== "0"), whatsapp: n.redes?.whatsapp, site: n.redes?.site };
+      const real = await ajustes.get(`numero/${id}`, { type: "json" });
+      negocios[id] = { nome: n.nome, rotulos: n.triagem?.rotulos || {}, conectado: Boolean(real || (pid && pid !== "0")), real: Boolean(real), whatsapp: n.redes?.whatsapp, site: n.redes?.site };
       respostas[id] = salvas[id] || RESPOSTAS_PADRAO[id] || [];
     }
     return json({ versao: VERSAO, negocios, respostas });
@@ -164,7 +165,9 @@ export default async (req) => {
     const tel = soNumeros(telBruto);
     const msg = String(texto || "").trim();
     if (!negocio || !tel || !msg) return json({ ok: false, erro: "Dados incompletos." }, 400);
-    const phoneNumberId = process.env[negocio.phoneNumberIdEnv];
+    // Número real (aprendido pelo webhook) tem prioridade sobre o de teste
+    const real = await ajustes.get(`numero/${negocio.id}`, { type: "json" });
+    const phoneNumberId = real?.phoneNumberId || process.env[negocio.phoneNumberIdEnv];
     if (!phoneNumberId || phoneNumberId === "0") return json({ ok: false, erro: `O número da ${negocio.nome} ainda não está configurado.` }, 400);
     const wa = criarEnviador({ phoneNumberId, token: process.env.WHATSAPP_TOKEN });
     const ok = await wa.texto(tel, msg.slice(0, 4000));

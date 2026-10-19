@@ -1,4 +1,4 @@
-// Configuração automática do webhook na Meta (v6)
+// Configuração automática do webhook na Meta (v9)
 // Abra no navegador: https://SEU-SITE.netlify.app/configurar?token=SEU_ADMIN_TOKEN&waba=ID_DA_CONTA_WHATSAPP
 // Faz duas coisas pela API da Meta e mostra o resultado de cada uma:
 //  1) cadastra o webhook do app (URL + token de verificação + campo "messages")
@@ -46,27 +46,44 @@ export default async (req) => {
   if (faltando.length) return Response.json({ ok: false, faltando_variaveis: faltando });
 
   const resultados = [];
-  resultados.push(
-    await chamar("1. Cadastrar webhook do app (whatsapp_business_account → messages)", `${GRAPH()}/${appId}/subscriptions`, {
+  const assinar = (fields) =>
+    chamar(`1. Cadastrar webhook do app (${fields})`, `${GRAPH()}/${appId}/subscriptions`, {
       object: "whatsapp_business_account",
       callback_url: callback,
       verify_token: verify,
-      fields: "messages",
+      fields,
       include_values: "true",
       access_token: `${appId}|${appSecret}`,
-    })
-  );
+    });
+  // Tenta com os ecos da coexistência (suas respostas pelo app); se a Meta recusar, fica só com mensagens
+  let r1 = await assinar("messages,smb_message_echoes");
+  if (!r1.ok) {
+    const sem = await assinar("messages");
+    resultados.push({ ...r1, aviso: "Ecos do app recusados; webhook ficou só com mensagens" });
+    r1 = sem;
+  }
+  resultados.push(r1);
   if (waba) {
     resultados.push(
       await chamar(`2. Inscrever a conta do WhatsApp ${waba} no app`, `${GRAPH()}/${waba}/subscribed_apps`, {
         access_token: env("WHATSAPP_TOKEN"),
       })
     );
+    // 3) Lista os números da conta (para conferir o número real)
+    try {
+      const res = await fetch(`${GRAPH()}/${waba}/phone_numbers?fields=id,display_phone_number,verified_name,platform_type,code_verification_status,quality_rating`, {
+        headers: { Authorization: `Bearer ${env("WHATSAPP_TOKEN")}` },
+      });
+      const d = await res.json().catch(() => ({}));
+      resultados.push({ passo: "3. Números da conta", ok: res.ok && !d.error, resposta: d.error ? { erro: d.error.message, codigo: d.error.code } : d.data });
+    } catch (e) {
+      resultados.push({ passo: "3. Números da conta", ok: false, erro: String(e) });
+    }
   } else {
     resultados.push({ passo: "2. Inscrever conta do WhatsApp", ok: false, erro: "Passe &waba=ID_DA_CONTA na URL" });
   }
 
-  return Response.json({ versao: "v6", callback, resultados }, { headers: { "cache-control": "no-store" } });
+  return Response.json({ versao: "v9", callback, resultados }, { headers: { "cache-control": "no-store" } });
 };
 
 export const config = { path: "/configurar" };

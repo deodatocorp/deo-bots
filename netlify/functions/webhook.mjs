@@ -1,4 +1,4 @@
-// Webhook único (v7) — a Meta chama esta URL para WhatsApp, Messenger e Instagram.
+// Webhook único (v9) — a Meta chama esta URL para WhatsApp, Messenger e Instagram.
 // URL final: https://SEU-SITE.netlify.app/webhook
 
 import deoRepair from "../../src/negocios/deo-repair.mjs";
@@ -10,6 +10,7 @@ import { criarIA } from "../../src/ia.mjs";
 import { criarArmazenamento } from "../../src/armazenamento.mjs";
 import { registrar, registrarEntrada, comHistorico } from "../../src/historico.mjs";
 import { mesmoNumero } from "../../src/bot.mjs";
+import { getStore } from "@netlify/blobs";
 
 const NEGOCIOS = [deoRepair, deoDev];
 const env = (k) => process.env[k];
@@ -64,6 +65,19 @@ export default async (req) => {
 };
 
 // ---------------- WhatsApp ----------------
+// Guarda o ID do número real (o painel usa para responder por ele)
+async function lembrarNumero(negocioId, phoneNumberId, exibido) {
+  try {
+    const ajustes = getStore("ajustes");
+    const atual = await ajustes.get(`numero/${negocioId}`, { type: "json" });
+    if (atual?.phoneNumberId !== phoneNumberId) {
+      await ajustes.setJSON(`numero/${negocioId}`, { phoneNumberId, exibido, em: Date.now() });
+      console.log("[whatsapp] número real reconhecido:", negocioId, exibido);
+    }
+  } catch (e) {
+    console.error("[whatsapp] não deu para guardar o número", e);
+  }
+}
 async function tratarWhatsApp(corpo, store, ia) {
   const token = env("WHATSAPP_TOKEN");
   for (const entry of corpo.entry || []) {
@@ -73,9 +87,15 @@ async function tratarWhatsApp(corpo, store, ia) {
       if (!v.messages?.length && !ecos.length) continue; // ignora status de entrega/leitura
 
       const phoneNumberId = v.metadata?.phone_number_id;
-      const negocio = NEGOCIOS.find((n) => env(n.phoneNumberIdEnv) === phoneNumberId);
+      const exibido = String(v.metadata?.display_phone_number || "").replace(/\D/g, "");
+      // 1º pelo ID configurado; 2º pelo número real da empresa (coexistência)
+      let negocio = NEGOCIOS.find((n) => env(n.phoneNumberIdEnv) === phoneNumberId);
+      if (!negocio && exibido) {
+        negocio = NEGOCIOS.find((n) => n.redes?.whatsapp && mesmoNumero(exibido, n.redes.whatsapp));
+        if (negocio) await lembrarNumero(negocio.id, phoneNumberId, exibido);
+      }
       if (!negocio) {
-        console.warn("[whatsapp] número sem negócio configurado:", phoneNumberId);
+        console.warn("[whatsapp] número sem negócio configurado:", phoneNumberId, exibido);
         continue;
       }
       const dono = env("DONO_WHATSAPP");
