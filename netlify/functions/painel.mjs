@@ -11,7 +11,7 @@ import deoRepair from "../../src/negocios/deo-repair.mjs";
 import deoDev from "../../src/negocios/deo-dev.mjs";
 import { timingSafeEqual } from "node:crypto";
 
-const VERSAO = "v10";
+const VERSAO = "v11";
 const NEGOCIOS = { "deo-repair": deoRepair, "deo-dev": deoDev };
 const HORAS = () => Number(process.env.ATENDENTE_HORAS || 12);
 const ETAPAS = ["novo", "orcamento", "aprovado", "concluido", "perdido"];
