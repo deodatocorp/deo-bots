@@ -1,4 +1,4 @@
-# 🤖 Bots Deo Repair & Deo Dev — WhatsApp, Instagram e Messenger · **v12**
+# 🤖 Bots Deo Repair & Deo Dev — WhatsApp, Instagram e Messenger · **v13**
 
 Um único projeto no Netlify atende **os dois negócios em três canais**: WhatsApp, Instagram e Messenger. O bot descobre qual negócio e qual canal é pela mensagem que chega e responde com a configuração certa.
 
@@ -216,6 +216,7 @@ test/                           ← simulador local
 
 ---
 ## Histórico de versões
+- **v13**: a Deo Dev (coexistência ligada pelo YCloud) responde sempre pela API do YCloud (`envio: "ycloud"` em `src/negocios/deo-dev.mjs`); as mensagens continuam chegando pelo webhook da Meta. A Deo Repair segue respondendo direto pela Meta.
 - **v12**: se a Meta recusar um envio por permissão, o bot reenvia pela API do YCloud (variável `YCLOUD_API_KEY`).
 - **v11**: textos das duas empresas completados com as informações dos sites (serviços, garantia de 90 dias, como funciona, planos atuais da Deo Dev: Presença, Marca, Negócio Pronto e Assinatura); sem mais textos de exemplo (✏️).
 - **v10**: corrige perguntas repetidas e mensagens sumindo do histórico (armazenamento com leitura sempre atualizada — `consistency: "strong"`).
@@ -230,4 +231,4 @@ test/                           ← simulador local
 - **v1**: primeira versão dos bots (menu, pré-orçamento, IA, atendimento humano com comandos do dono e painel de pedidos).
 
 ---
-*Bots Deo — v12*
+*Bots Deo — v13*
