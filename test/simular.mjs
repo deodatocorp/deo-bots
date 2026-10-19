@@ -97,7 +97,7 @@ await caso("Deo Dev: palavra 'orçamento' inicia triagem; corrigir reinicia; can
   await envia(CLIENTE, "boa tarde");
   let r = await envia(CLIENTE, "queria um orçamento de site");
   assert.match(r.at(-1).args[0], /nome/);
-  for (const t of ["Ana", "Barbearia do Zé", "barbearia", "Landing page", "Plano 2 (R$ 499,99)", "não"]) await envia(CLIENTE, t);
+  for (const t of ["Ana", "Barbearia do Zé", "barbearia", "Landing page", "Marca (R$ 1.000)", "não"]) await envia(CLIENTE, t);
   r = await envia(CLIENTE, botao("conf:corrigir", "Corrigir"));
   assert.match(r.at(-1).args[0], /nome/);
   r = await envia(CLIENTE, "cancelar");
@@ -109,7 +109,7 @@ await caso("Deo Dev: planos mostra preços; pergunta livre vai para a IA", async
   await envia(CLIENTE, "oi");
   let r = await envia(CLIENTE, escolha("menu:planos", "Planos e preços"));
   assert.match(r[0].args[0], /199,99/);
-  assert.match(r[0].args[0], /499,99/);
+  assert.match(r[0].args[0], /1.700/);
   r = await envia(CLIENTE, "vocês fazem cardápio digital?");
   assert.match(r[0].args[0], /\[IA\]/);
 });
@@ -267,7 +267,7 @@ await caso("link do WhatsApp leva a mensagem pronta e o bot do WhatsApp começa 
   const { envia, store } = montar(deoDev);
   let r = await envia(CLIENTE, texto);
   assert.match(r.at(-1).args[0], /nome/); // já começou o pré-orçamento
-  for (const t of ["Ana", "Barbearia do Zé", "barbearia", "Landing page", "Plano 1 (R$ 199,99)", "não"]) await envia(CLIENTE, t);
+  for (const t of ["Ana", "Barbearia do Zé", "barbearia", "Landing page", "Presença (R$ 350)", "não"]) await envia(CLIENTE, t);
   r = await envia(CLIENTE, "sim");
   assert.ok(r.some((s) => s.para === DONO && /Veio pelo: Instagram/.test(s.args[0])));
   assert.equal((await store.listarLeads())[0].origem, "instagram");
