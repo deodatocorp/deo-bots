@@ -1,4 +1,4 @@
-// Painel dos bots (v9): visão geral, caixa de entrada, quadro de pedidos e respostas rápidas,
+// Painel dos bots (v10): visão geral, caixa de entrada, quadro de pedidos e respostas rápidas,
 // com a identidade da Deodato Corp e o tema de cada empresa.
 // Acesse: https://SEU-SITE.netlify.app/painel?token=SEU_ADMIN_TOKEN
 
@@ -11,7 +11,7 @@ import deoRepair from "../../src/negocios/deo-repair.mjs";
 import deoDev from "../../src/negocios/deo-dev.mjs";
 import { timingSafeEqual } from "node:crypto";
 
-const VERSAO = "v9";
+const VERSAO = "v10";
 const NEGOCIOS = { "deo-repair": deoRepair, "deo-dev": deoDev };
 const HORAS = () => Number(process.env.ATENDENTE_HORAS || 12);
 const ETAPAS = ["novo", "orcamento", "aprovado", "concluido", "perdido"];
@@ -58,8 +58,8 @@ export default async (req) => {
   const token = req.headers.get("x-token") || url.searchParams.get("token");
   if (!tokenOk(token)) return new Response("Acesso negado", { status: 401 });
   const store = criarArmazenamento();
-  const ajustes = getStore("ajustes");
-  const leadsStore = getStore("leads");
+  const ajustes = getStore({ name: "ajustes", consistency: "strong" });
+  const leadsStore = getStore({ name: "leads", consistency: "strong" });
   const corpo = () => (req.method === "POST" ? req.json().catch(() => ({})) : Promise.resolve({}));
 
   // ---------- Arquivo enviado por um cliente ----------

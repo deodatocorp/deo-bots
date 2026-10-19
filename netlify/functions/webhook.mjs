@@ -1,4 +1,4 @@
-// Webhook único (v9) — a Meta chama esta URL para WhatsApp, Messenger e Instagram.
+// Webhook único (v10) — a Meta chama esta URL para WhatsApp, Messenger e Instagram.
 // URL final: https://SEU-SITE.netlify.app/webhook
 
 import deoRepair from "../../src/negocios/deo-repair.mjs";
@@ -68,7 +68,7 @@ export default async (req) => {
 // Guarda o ID do número real (o painel usa para responder por ele)
 async function lembrarNumero(negocioId, phoneNumberId, exibido) {
   try {
-    const ajustes = getStore("ajustes");
+    const ajustes = getStore({ name: "ajustes", consistency: "strong" });
     const atual = await ajustes.get(`numero/${negocioId}`, { type: "json" });
     if (atual?.phoneNumberId !== phoneNumberId) {
       await ajustes.setJSON(`numero/${negocioId}`, { phoneNumberId, exibido, em: Date.now() });
