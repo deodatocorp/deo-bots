@@ -1,4 +1,4 @@
-// Configuração automática do webhook na Meta (v9)
+// Configuração automática do webhook na Meta (v12: + diagnóstico)
 // Abra no navegador: https://SEU-SITE.netlify.app/configurar?token=SEU_ADMIN_TOKEN&waba=ID_DA_CONTA_WHATSAPP
 // Faz duas coisas pela API da Meta e mostra o resultado de cada uma:
 //  1) cadastra o webhook do app (URL + token de verificação + campo "messages")
@@ -44,6 +44,34 @@ export default async (req) => {
     .filter(([, v]) => !v)
     .map(([k]) => k);
   if (faltando.length) return Response.json({ ok: false, faltando_variaveis: faltando });
+
+  // Diagnóstico (v12): /configurar?token=...&diag=WABA1,WABA2 — só leitura, não mostra segredos
+  const diag = (url.searchParams.get("diag") || "").split(",").map((x) => x.replace(/\D/g, "")).filter(Boolean);
+  if (diag.length) {
+    const ler = async (caminho, token = env("WHATSAPP_TOKEN")) => {
+      try {
+        const sep = caminho.includes("?") ? "&" : "?";
+        const r = await fetch(`${GRAPH()}/${caminho}${sep}access_token=${encodeURIComponent(token)}`);
+        const d = await r.json().catch(() => ({}));
+        return d.error ? { erro: d.error.message, codigo: d.error.code, subcodigo: d.error.error_subcode } : d;
+      } catch (e) {
+        return { erro: String(e) };
+      }
+    };
+    const dbg = await ler(`debug_token?input_token=${encodeURIComponent(env("WHATSAPP_TOKEN"))}`, `${appId}|${appSecret}`);
+    const tokenInfo = dbg.data
+      ? { valido: dbg.data.is_valid, app: dbg.data.app_id, tipo: dbg.data.type, expira: dbg.data.expires_at, escopos: dbg.data.scopes, granular: dbg.data.granular_scopes }
+      : dbg;
+    const contas = {};
+    for (const w of diag) {
+      contas[w] = {
+        conta: await ler(`${w}?fields=id,name,account_review_status,ownership_type,business_verification_status,currency`),
+        apps_inscritos: await ler(`${w}/subscribed_apps`),
+        numeros: await ler(`${w}/phone_numbers?fields=id,display_phone_number,platform_type,status,name_status,is_on_biz_app,code_verification_status,throughput`),
+      };
+    }
+    return Response.json({ versao: "v12", token: tokenInfo, contas }, { headers: { "cache-control": "no-store" } });
+  }
 
   const resultados = [];
   const assinar = (fields) =>
