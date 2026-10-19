@@ -340,7 +340,7 @@ textarea.campo{resize:vertical;min-height:80px}
     <button data-v="conversas"><svg><use href="#i-chat"/></svg>Conversas<span class="cont" id="contAguardando" hidden>0</span></button>
     <button data-v="pedidos"><svg><use href="#i-quadro"/></svg>Pedidos<span class="cont" id="contNovos" hidden>0</span></button>
     <button data-v="respostas"><svg><use href="#i-raio"/></svg>Respostas rápidas</button>
-    <div class="rodape"><b>Números conectados</b><div id="statusNums"></div><span class="ver">Bots Deo v8</span></div>
+    <div class="rodape"><b>Números conectados</b><div id="statusNums"></div><span class="ver">Bots Deo v9</span></div>
   </nav>
 
   <main>
@@ -461,7 +461,7 @@ textarea.campo{resize:vertical;min-height:80px}
 <script>
 (function(){
 "use strict";
-var VERSAO = "v8";
+var VERSAO = "v9";
 // ---- Acesso: o token vem no link uma vez e fica guardado só nesta aba ----
 var params = new URLSearchParams(location.search);
 var T = params.get("token") || "";
@@ -641,7 +641,7 @@ function desenharContadores(){
 function desenharStatus(){
   var h = Object.keys(S.info.negocios || {}).map(function(id){
     var n = S.info.negocios[id];
-    return '<div class="status-num"><i style="background:' + (n.conectado ? "var(--ok)" : "var(--warn)") + '"></i>' + esc(n.nome) + ' <span class="mono" style="margin-left:auto;font-size:11px">' + (n.conectado ? "ativo" : "pendente") + "</span></div>";
+    return '<div class="status-num"><i style="background:' + (n.conectado ? "var(--ok)" : "var(--warn)") + '"></i>' + esc(n.nome) + ' <span class="mono" style="margin-left:auto;font-size:11px">' + (n.real ? "nº real" : n.conectado ? "teste" : "pendente") + "</span></div>";
   }).join("");
   $("#statusNums").innerHTML = h;
 }
